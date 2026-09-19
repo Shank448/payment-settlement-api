@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayFlow — Settlement demo</title>
+<style>
+  :root {
+    --blue: #1a73e8;
+    --blue-dark: #1557b0;
+    --bg: #f1f3f4;
+    --card: #ffffff;
+    --text: #202124;
+    --text-secondary: #5f6368;
+    --green: #188038;
+    --green-bg: #e6f4ea;
+    --amber: #b06000;
+    --amber-bg: #fef7e0;
+    --red: #c5221f;
+    --red-bg: #fce8e6;
+    --border: #e8eaed;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .brand-name {
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 18px;
+  }
+  .icon-btn:hover { background: var(--border); }
+
+  .hero {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .hero-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .hero-amount {
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 24px 0 10px 4px;
+  }
+
+  .accounts-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .accounts-row::-webkit-scrollbar { display: none; }
+
+  .account-card {
+    flex: 0 0 auto;
+    min-width: 150px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: default;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .account-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .account-id {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-family: "SF Mono", Consolas, monospace;
+  }
+
+  .account-balance {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .add-account-card {
+    flex: 0 0 auto;
+    width: 150px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .add-account-card:hover { background: var(--card); border-color: var(--blue); color: var(--blue); }
+  .add-account-card .plus {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  select, input[type="text"], input[type="email"] {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text);
+    appearance: none;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: white;
+  }
+
+  .amount-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .amount-field:focus-within { border-color: var(--blue); background: white; }
+  .amount-field span { color: var(--text-secondary); font-size: 15px; }
+  .amount-field input {
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    font-weight: 500;
+    width: 100%;
+    padding: 0;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .amount-field input:focus { outline: none; }
+
+  .swap-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -6px 0;
+  }
+  .swap-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 1;
+  }
+  .swap-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  .send-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 24px;
+    border: none;
+    background: var(--blue);
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 6px;
+    font-family: inherit;
+  }
+  .send-btn:hover { background: var(--blue-dark); }
+  .send-btn:disabled { background: #dadce0; color: #9aa0a6; cursor: not-allowed; }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .activity-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .activity-row:last-child { border-bottom: none; }
+
+  .activity-avatars {
+    display: flex;
+    flex-shrink: 0;
+  }
+  .activity-avatars .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    margin-bottom: 0;
+    border: 2px solid var(--card);
+  }
+  .activity-avatars .avatar:last-child { margin-left: -10px; }
+
+  .activity-detail { flex: 1; min-width: 0; }
+  .activity-names { font-size: 14px; font-weight: 500; }
+  .activity-time { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+  .activity-right { text-align: right; flex-shrink: 0; }
+  .activity-amount { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 10px;
+  }
+  .pill.completed { background: var(--green-bg); color: var(--green); }
+  .pill.pending { background: var(--amber-bg); color: var(--amber); }
+  .pill.failed { background: var(--red-bg); color: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  /* Overlay for transfer status */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(32,33,36,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 16px;
+  }
+  .overlay.show { display: flex; }
+
+  .status-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .result-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  .result-icon.success { background: var(--green); }
+  .result-icon.failure { background: var(--red); }
+
+  .status-title { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+  .status-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+  .status-close {
+    width: 100%;
+    padding: 11px;
+    border-radius: 24px;
+    border: none;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .status-close:hover { background: var(--border); }
+
+  /* New account modal */
+  .modal-card { text-align: left; }
+  .modal-title { font-size: 17px; font-weight: 500; margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .modal-actions .send-btn { margin-top: 0; }
+  .btn-secondary {
+    flex: 1;
+    padding: 13px;
+    border-radius: 24px;
+    border: none;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #323232;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.25s ease;
+    z-index: 20;
+    max-width: 90%;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">P</div>
+      <div class="brand-name">PayFlow</div>
+    </div>
+    <button class="icon-btn" onclick="seedDemo()" title="Add demo users">⟳</button>
+  </div>
+
+  <div class="hero">
+    <div class="hero-label">Total across your accounts</div>
+    <div class="hero-amount" id="totalBalance">₹0.00</div>
+  </div>
+
+  <div class="section-title">Accounts</div>
+  <div class="accounts-row" id="accountsRow"></div>
+
+  <div class="section-title">Send money</div>
+  <div class="card">
+    <div class="field">
+      <label>From</label>
+      <select id="fromAccount"></select>
+    </div>
+    <div class="swap-row">
+      <button class="swap-btn" onclick="swapAccounts()" title="Swap">⇅</button>
+    </div>
+    <div class="field">
+      <label>To</label>
+      <select id="toAccount"></select>
+    </div>
+    <div class="field">
+      <label>Amount</label>
+      <div class="amount-field">
+        <span>₹</span>
+        <input type="text" id="amountInput" placeholder="0.00" inputmode="decimal">
+      </div>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="sendTransfer()">Send</button>
+  </div>
+
+  <div class="section-title">Recent activity</div>
+  <div class="card">
+    <div class="activity-list" id="activityList">
+      <div class="empty-state">No transfers yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer status overlay -->
+<div class="overlay" id="statusOverlay">
+  <div class="status-card" id="statusCard"></div>
+</div>
+
+<!-- New account modal -->
+<div class="overlay" id="newAccountOverlay">
+  <div class="status-card modal-card">
+    <div class="modal-title">New account</div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="newName" placeholder="e.g. Priya">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="newEmail" placeholder="e.g. priya@example.com">
+    </div>
+    <div class="field">
+      <label>Opening balance</label>
+      <div class="amount-field">
+        <span>₹</span>
+        <input type="text" id="newBalance" placeholder="0.00" inputmode="decimal">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeNewAccount()">Cancel</button>
+      <button class="send-btn" onclick="submitNewAccount()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AVATAR_COLORS = ['#1a73e8', '#188038', '#e37400', '#8430ce', '#d01884', '#12805c'];
+let accounts = [];
+
+function colorFor(id) {
+  let hash = 0;
+  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function fmt(amount, currency) {
+  const symbol = currency === 'INR' ? '₹' : (currency + ' ');
+  return symbol + Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function shortId(id) {
+  return id.slice(0, 8) + '…';
+}
+
+async function loadAccounts() {
+  const res = await fetch('/accounts');
+  accounts = await res.json();
+
+  const total = accounts.reduce((sum, a) => sum + Number(a.balance), 0);
+  document.getElementById('totalBalance').textContent = fmt(total, accounts[0]?.currency || 'INR');
+
+  const row = document.getElementById('accountsRow');
+  row.innerHTML = accounts.map(a => `
+    <div class="account-card">
+      <div class="avatar" style="background:${colorFor(a.id)}">${initials(a.owner_name)}</div>
+      <div class="account-name">${a.owner_name}</div>
+      <div class="account-id">${shortId(a.id)}</div>
+      <div class="account-balance">${fmt(a.balance, a.currency)}</div>
+    </div>
+  `).join('') + `
+    <button class="add-account-card" onclick="openNewAccount()">
+      <div class="plus">+</div>
+      New account
+    </button>
+  `;
+
+  const options = accounts.map(a =>
+    `<option value="${a.id}">${a.owner_name} — ${fmt(a.balance, a.currency)}</option>`
+  ).join('');
+  const fromSel = document.getElementById('fromAccount');
+  const toSel = document.getElementById('toAccount');
+  const prevFrom = fromSel.value, prevTo = toSel.value;
+  fromSel.innerHTML = options;
+  toSel.innerHTML = options;
+  if (accounts.some(a => a.id === prevFrom)) fromSel.value = prevFrom;
+  if (accounts.some(a => a.id === prevTo)) toSel.value = prevTo;
+  if (!toSel.value && accounts.length > 1) toSel.selectedIndex = 1;
+}
+
+async function loadActivity() {
+  const res = await fetch('/transactions?limit=15');
+  const txns = await res.json();
+  const list = document.getElementById('activityList');
+
+  if (txns.length === 0) {
+    list.innerHTML = '<div class="empty-state">No transfers yet</div>';
+    return;
+  }
+
+  const byId = Object.fromEntries(accounts.map(a => [a.id, a]));
+
+  list.innerHTML = txns.map(t => {
+    const from = byId[t.from_account_id];
+    const to = byId[t.to_account_id];
+    const fromName = from ? from.owner_name : 'Unknown';
+    const toName = to ? to.owner_name : 'Unknown';
+    const time = new Date(t.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const statusClass = t.status.toLowerCase();
+    return `
+      <div class="activity-row">
+        <div class="activity-avatars">
+          <div class="avatar" style="background:${colorFor(t.from_account_id)}">${initials(fromName)}</div>
+          <div class="avatar" style="background:${colorFor(t.to_account_id)}">${initials(toName)}</div>
+        </div>
+        <div class="activity-detail">
+          <div class="activity-names">${fromName} → ${toName}</div>
+          <div class="activity-time">${time}</div>
+        </div>
+        <div class="activity-right">
+          <div class="activity-amount">${fmt(t.amount, 'INR')}</div>
+          <span class="pill ${statusClass}">${t.status.charAt(0) + t.status.slice(1).toLowerCase()}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function swapAccounts() {
+  const fromSel = document.getElementById('fromAccount');
+  const toSel = document.getElementById('toAccount');
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+async function sendTransfer() {
+  const fromId = document.getElementById('fromAccount').value;
+  const toId = document.getElementById('toAccount').value;
+  const amountStr = document.getElementById('amountInput').value.trim();
+  const amount = parseFloat(amountStr);
+
+  if (!fromId || !toId) { showToast('Create at least two accounts first'); return; }
+  if (fromId === toId) { showToast('Choose two different accounts'); return; }
+  if (!amount || amount <= 0) { showToast('Enter a valid amount'); return; }
+
+  const overlay = document.getElementById('statusOverlay');
+  const card = document.getElementById('statusCard');
+  card.innerHTML = `
+    <div class="spinner"></div>
+    <div class="status-title">Sending payment</div>
+    <div class="status-sub">${fmt(amount, 'INR')} is on its way</div>
+  `;
+  overlay.classList.add('show');
+
+  try {
+    const res = await fetch('/transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from_account_id: fromId, to_account_id: toId, amount: amount })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Transfer failed');
+    }
+    const txn = await res.json();
+    await pollTransaction(txn.id);
+  } catch (e) {
+    renderResult(false, e.message || 'Something went wrong');
+  }
+}
+
+async function pollTransaction(id) {
+  for (let i = 0; i < 20; i++) {
+    const res = await fetch(`/transactions/${id}`);
+    const txn = await res.json();
+    if (txn.status === 'COMPLETED') {
+      renderResult(true, `${fmt(txn.amount, 'INR')} sent successfully`);
+      return;
+    }
+    if (txn.status === 'FAILED') {
+      renderResult(false, txn.failure_reason || 'Transfer failed');
+      return;
+    }
+    await new Promise(r => setTimeout(r, 400));
+  }
+  renderResult(false, 'Still settling — check activity feed shortly');
+}
+
+function renderResult(success, message) {
+  const card = document.getElementById('statusCard');
+  card.innerHTML = `
+    <div class="result-icon ${success ? 'success' : 'failure'}">${success ? '✓' : '✕'}</div>
+    <div class="status-title">${success ? 'Payment sent' : 'Payment failed'}</div>
+    <div class="status-sub">${message}</div>
+    <button class="status-close" onclick="closeStatus()">Done</button>
+  `;
+  document.getElementById('amountInput').value = '';
+  loadAccounts();
+  loadActivity();
+}
+
+function closeStatus() {
+  document.getElementById('statusOverlay').classList.remove('show');
+}
+
+function openNewAccount() {
+  document.getElementById('newAccountOverlay').classList.add('show');
+}
+function closeNewAccount() {
+  document.getElementById('newAccountOverlay').classList.remove('show');
+  document.getElementById('newName').value = '';
+  document.getElementById('newEmail').value = '';
+  document.getElementById('newBalance').value = '';
+}
+
+async function submitNewAccount() {
+  const name = document.getElementById('newName').value.trim();
+  const email = document.getElementById('newEmail').value.trim();
+  const balance = parseFloat(document.getElementById('newBalance').value) || 0;
+
+  if (!name || !email) { showToast('Enter a name and email'); return; }
+
+  try {
+    const userRes = await fetch('/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email })
+    });
+    if (!userRes.ok) {
+      const err = await userRes.json();
+      throw new Error(err.detail || 'Could not create user');
+    }
+    const user = await userRes.json();
+
+    await fetch('/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: user.id, initial_balance: balance, currency: 'INR' })
+    });
+
+    closeNewAccount();
+    showToast(`Account created for ${name}`);
+    loadAccounts();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+async function seedDemo() {
+  await fetch('/demo/seed', { method: 'POST' });
+  showToast('Added two demo accounts');
+  loadAccounts();
+  loadActivity();
+}
+
+async function refreshAll() {
+  await loadAccounts();
+  await loadActivity();
+}
+
+refreshAll();
+setInterval(loadActivity, 5000);
+</script>
+
+</body>
+</html>
